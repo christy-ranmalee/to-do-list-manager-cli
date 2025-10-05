@@ -1,0 +1,2 @@
+rich>=13.4.2
+InquirerPy>=1.5.6
