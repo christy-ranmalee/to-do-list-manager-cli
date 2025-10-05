@@ -1,22 +1,35 @@
-import json
+import csv
 import os
 from datetime import datetime
 
-TASKS_FILE = "tasks.json"
+TASKS_FILE = "tasks.csv"
 
 
 def load_tasks():
-    """Load tasks from JSON file."""
+    """Load tasks from CSV file."""
+    tasks = []
     if not os.path.exists(TASKS_FILE):
-        return []
-    with open(TASKS_FILE, "r") as f:
-        return json.load(f)
+        return tasks
+    with open(TASKS_FILE, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            tasks.append({
+                "id": int(row["id"]),
+                "description": row["description"],
+                "done": row["done"].lower() == "true",
+                "created_at": row["created_at"]
+            })
+    return tasks
 
 
 def save_tasks(tasks):
-    """Save tasks to JSON file."""
-    with open(TASKS_FILE, "w") as f:
-        json.dump(tasks, f, indent=4)
+    """Save tasks to CSV file."""
+    with open(TASKS_FILE, "w", newline='', encoding='utf-8') as csvfile:
+        fieldnames = ["id", "description", "done", "created_at"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for task in tasks:
+            writer.writerow(task)
 
 
 def add_task():
@@ -96,7 +109,7 @@ def main_menu():
     """Display menu and handle user input."""
     while True:
         print("\n==============================")
-        print("🧾 TO-DO LIST MANAGER")
+        print("🧾 TO-DO LIST MANAGER (CSV Edition)")
         print("==============================")
         print("1. Add a new task")
         print("2. View all tasks")
@@ -115,7 +128,7 @@ def main_menu():
         elif choice == "4":
             delete_task()
         elif choice == "5":
-            print("👋 Goodbye! Your tasks are saved.")
+            print("👋 Goodbye! Your tasks are saved to tasks.csv.")
             break
         else:
             print("⚠️ Invalid choice, please try again.")
